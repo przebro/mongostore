@@ -1,0 +1,14 @@
+net:
+   tls:
+      allowInvalidCertificates : true 
+# allowSSL | requireTLS preferTLS
+      mode: allowTLS
+#Path Key 
+#     PEMKeyPassword : ""
+      certificateKeyFile : "/opt/mongo/cert/bazaarsrv.pem"
+#Path to CA file
+      CAFile : "/opt/mongo/cert/root_ca.crt"
+      allowConnectionsWithoutCertificates: true
+
+storage: 
+   dbPath: "/data/db"
