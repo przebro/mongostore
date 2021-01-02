@@ -2,8 +2,12 @@ package store
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"strconv"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -21,6 +25,7 @@ const (
 	databaseOption = "database"
 )
 
+//MongoStore - mongodb data store
 type MongoStore struct {
 	name     string
 	client   *mongo.Client
@@ -47,6 +52,47 @@ func initMongoDB(opt o.ConnectionOptions) (store.DataStore, error) {
 			Password: opt.Options[o.PasswordOption],
 		}
 		mongoOptions.SetAuth(credential)
+	}
+
+	if capath := opt.Options[o.RootCACertOption]; capath != "" {
+
+		pool := x509.NewCertPool()
+		data, err := ioutil.ReadFile(capath)
+
+		if err != nil {
+			return nil, err
+		}
+		ok := pool.AppendCertsFromPEM(data)
+		if !ok {
+			return nil, errors.New("unable to read certificate")
+		}
+
+		var untrusted bool
+
+		if trustopt := opt.Options[o.UntrustedOption]; trustopt != "" {
+
+			if v, err := strconv.ParseBool(trustopt); err == nil {
+				untrusted = v
+			}
+		}
+
+		tlscfg := &tls.Config{
+			RootCAs:            pool,
+			InsecureSkipVerify: untrusted,
+			ServerName:         "local",
+		}
+
+		if ckeyf, ccertf := opt.Options[o.ClientKeyOption], opt.Options[o.ClientCertOption]; ckeyf != "" && ccertf != "" {
+			ccert, err := tls.LoadX509KeyPair(ccertf, ckeyf)
+			if err != nil {
+				return nil, err
+			}
+
+			tlscfg.Certificates = []tls.Certificate{ccert}
+		}
+
+		mongoOptions.SetTLSConfig(tlscfg)
+
 	}
 
 	ctx := context.Background()
@@ -86,6 +132,7 @@ func (s *MongoStore) CreateCollection(ctx context.Context, name string) (collect
 //Status - returns status of a connection
 func (s *MongoStore) Status(ctx context.Context) (string, error) {
 
+	s.client.ListDatabaseNames(context.Background(), nil)
 	err := s.client.Ping(ctx, readpref.PrimaryPreferred())
 
 	return "", err

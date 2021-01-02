@@ -24,6 +24,16 @@ type TestDocument struct {
 
 const mongoDbConn = "mongodb;127.0.0.1:20017/testdb?username=admin&password=notsecure"
 
+/*Tests all available tls options, note that certificates are self-signed therefore
+untrusted must be set to true also, docker runs with a config file that sets mongodb to allow invalid certificates but requires
+that the client presents their own certificate
+*/
+const secureDbConn = "mongodb;127.0.0.1:20017/testdb?username=admin&password=notsecure" +
+	"&cacert=../docker/cert/root_ca.crt" +
+	"&untrusted=true" +
+	"&clientkey=../docker/cert/client.key" +
+	"&clientcert=../docker/cert/client.crt"
+
 func TestMongoStore(t *testing.T) {
 
 	_, err := store.NewStore("mongodb;127.0.0.1:20017/testdb")
@@ -81,4 +91,12 @@ func TestClose(t *testing.T) {
 	}
 	store.Close(context.Background())
 
+}
+
+func TestSecureConnection(t *testing.T) {
+
+	_, err := store.NewStore(secureDbConn)
+	if err != nil {
+		t.Error(err)
+	}
 }
