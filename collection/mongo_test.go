@@ -106,9 +106,12 @@ func TestInsertMany(t *testing.T) {
 		tc = append(tc, testCollection[x])
 	}
 
-	_, err := col.CreateMany(context.Background(), tc)
+	r, err := col.CreateMany(context.Background(), tc)
 	if err != nil {
 		t.Error(err)
+	}
+	if len(r) != len(testCollection) {
+		t.Error("unexpected result:", len(r))
 	}
 }
 

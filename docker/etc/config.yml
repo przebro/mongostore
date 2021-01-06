@@ -8,7 +8,7 @@ net:
       certificateKeyFile : "/opt/mongo/cert/bazaarsrv.pem"
 #Path to CA file
       CAFile : "/opt/mongo/cert/root_ca.crt"
-      allowConnectionsWithoutCertificates: false
+      allowConnectionsWithoutCertificates: true
 
 storage: 
    dbPath: "/data/db"

@@ -71,7 +71,7 @@ func (d *mongoDbCollection) CreateMany(ctx context.Context, docs []interface{}) 
 		rset = append(rset, result.BazaarResult{ID: x.(string)})
 	}
 
-	return nil, nil
+	return rset, nil
 }
 func (d *mongoDbCollection) Get(ctx context.Context, id string, result interface{}) error {
 
@@ -86,6 +86,7 @@ func (d *mongoDbCollection) Get(ctx context.Context, id string, result interface
 	if res.Err() != nil {
 		return res.Err()
 	}
+
 	err = res.Decode(result)
 	if err != nil {
 		return err
