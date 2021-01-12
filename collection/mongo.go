@@ -94,6 +94,18 @@ func (d *mongoDbCollection) Get(ctx context.Context, id string, result interface
 	return nil
 }
 
+func (d *mongoDbCollection) All(ctx context.Context) (collection.BazaarCursor, error) {
+
+	filter := bson.D{}
+	crsr, err := d.collection.Find(ctx, filter)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &mongoCursor{crsr}, nil
+}
+
 func (d *mongoDbCollection) Select(ctx context.Context, s selector.Expr, fld selector.Fields) (collection.BazaarCursor, error) {
 
 	var err error

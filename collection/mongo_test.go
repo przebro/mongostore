@@ -181,6 +181,23 @@ func TestUpdate(t *testing.T) {
 
 }
 
+func TestAll(t *testing.T) {
+
+	crsr, _ := col.All(context.Background())
+
+	doc := tst.TestDocument{}
+
+	num := 0
+	for crsr.Next(context.Background()) {
+		num++
+		crsr.Decode(&doc)
+	}
+
+	if num == 0 {
+		t.Error("unexpected result")
+	}
+}
+
 func TestDelete(t *testing.T) {
 
 	err := col.Delete(context.Background(), singleRecordWithID.ID)
