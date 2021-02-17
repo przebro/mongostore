@@ -3,6 +3,7 @@ package collection
 import (
 	"context"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/przebro/databazaar/collection"
@@ -58,8 +59,9 @@ func init() {
 
 func TestMain(m *testing.M) {
 
-	m.Run()
+	rc := m.Run()
 	cli.Database("testdb").Drop(context.Background())
+	os.Exit(rc)
 }
 
 func TestInsertOne(t *testing.T) {
@@ -95,6 +97,15 @@ func TestGetOne(t *testing.T) {
 
 	if doc.ID != singleRecordWithID.ID {
 		t.Error("unexpected result:", doc.ID)
+	}
+}
+
+func TestGetNoResult(t *testing.T) {
+
+	doc := tst.TestDocument{}
+	err := col.Get(context.Background(), "single_record_notexists", &doc)
+	if err != collection.ErrNoDocuments {
+		t.Error(err)
 	}
 }
 
@@ -195,6 +206,17 @@ func TestAll(t *testing.T) {
 
 	if num == 0 {
 		t.Error("unexpected result")
+	}
+}
+
+func TestCount(t *testing.T) {
+
+	r, err := col.Count(context.Background())
+	if err != nil {
+		t.Error("unexpected result")
+	}
+	if r == 0 {
+		t.Error(r)
 	}
 }
 

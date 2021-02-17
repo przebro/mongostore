@@ -13,7 +13,6 @@ import (
 
 	"github.com/przebro/databazaar/collection"
 	"github.com/przebro/databazaar/store"
-	o "github.com/przebro/databazaar/store"
 	mongodb "github.com/przebro/mongostore/collection"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -36,7 +35,7 @@ func init() {
 	store.RegisterStoreFactory(mongostore, initMongoDB)
 }
 
-func initMongoDB(opt o.ConnectionOptions) (store.DataStore, error) {
+func initMongoDB(opt store.ConnectionOptions) (store.DataStore, error) {
 
 	uri := fmt.Sprintf("%s://%s:%d", opt.Scheme, opt.Host, opt.Port)
 
@@ -46,15 +45,15 @@ func initMongoDB(opt o.ConnectionOptions) (store.DataStore, error) {
 	}
 	mongoOptions := options.Client().ApplyURI(uri)
 
-	if opt.Options[o.UsernameOption] != "" && opt.Options[o.PasswordOption] != "" {
+	if opt.Options[store.UsernameOption] != "" && opt.Options[store.PasswordOption] != "" {
 		credential := options.Credential{
-			Username: opt.Options[o.UsernameOption],
-			Password: opt.Options[o.PasswordOption],
+			Username: opt.Options[store.UsernameOption],
+			Password: opt.Options[store.PasswordOption],
 		}
 		mongoOptions.SetAuth(credential)
 	}
 
-	if capath := opt.Options[o.RootCACertOption]; capath != "" {
+	if capath := opt.Options[store.RootCACertOption]; capath != "" {
 
 		pool := x509.NewCertPool()
 		data, err := ioutil.ReadFile(capath)
@@ -69,20 +68,22 @@ func initMongoDB(opt o.ConnectionOptions) (store.DataStore, error) {
 
 		var untrusted bool
 
-		if trustopt := opt.Options[o.UntrustedOption]; trustopt != "" {
+		if trustopt := opt.Options[store.UntrustedOption]; trustopt != "" {
 
 			if v, err := strconv.ParseBool(trustopt); err == nil {
 				untrusted = v
 			}
 		}
 
+		serverName := opt.Options[store.HostnameOption]
+
 		tlscfg := &tls.Config{
 			RootCAs:            pool,
 			InsecureSkipVerify: untrusted,
-			ServerName:         "local",
+			ServerName:         serverName,
 		}
 
-		if ckeyf, ccertf := opt.Options[o.ClientKeyOption], opt.Options[o.ClientCertOption]; ckeyf != "" && ccertf != "" {
+		if ckeyf, ccertf := opt.Options[store.ClientKeyOption], opt.Options[store.ClientCertOption]; ckeyf != "" && ccertf != "" {
 			ccert, err := tls.LoadX509KeyPair(ccertf, ckeyf)
 			if err != nil {
 				return nil, err
@@ -92,17 +93,14 @@ func initMongoDB(opt o.ConnectionOptions) (store.DataStore, error) {
 		}
 
 		mongoOptions.SetTLSConfig(tlscfg)
-
 	}
-
-	ctx := context.Background()
 
 	client, err := mongo.NewClient(mongoOptions)
 	if err != nil {
 		return nil, err
 	}
 
-	err = client.Connect(ctx)
+	err = client.Connect(context.Background())
 	if err != nil {
 		return nil, err
 	}

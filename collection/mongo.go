@@ -83,7 +83,11 @@ func (d *mongoDbCollection) Get(ctx context.Context, id string, result interface
 	}
 
 	res := d.collection.FindOne(ctx, filter)
+
 	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return collection.ErrNoDocuments
+		}
 		return res.Err()
 	}
 
@@ -145,10 +149,14 @@ func (d *mongoDbCollection) Delete(ctx context.Context, id string) error {
 	}
 
 	filter := bson.D{{"_id", id}}
-
 	_, err := d.collection.DeleteOne(ctx, filter)
 	return err
 
+}
+
+func (d *mongoDbCollection) Count(ctx context.Context) (int64, error) {
+
+	return d.collection.EstimatedDocumentCount(ctx)
 }
 
 func (d *mongoDbCollection) AsQuerable() (collection.QuerableCollection, error) {

@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/przebro/databazaar/store"
 )
@@ -31,8 +32,14 @@ that the client presents their own certificate
 const secureDbConn = "mongodb;127.0.0.1:20017/testdb?username=admin&password=notsecure" +
 	"&cacert=../docker/cert/root_ca.crt" +
 	"&untrusted=true" +
+	"&host=localhost" +
 	"&clientkey=../docker/cert/client.key" +
 	"&clientcert=../docker/cert/client.crt"
+
+const secureDb = "mongodb;127.0.0.1:20017/testdb?username=admin&password=notsecure" +
+	"&cacert=../docker/cert/root_ca.crt" +
+	"&host=localhost2" +
+	"&untrusted=false"
 
 func TestMongoStore(t *testing.T) {
 
@@ -98,5 +105,21 @@ func TestSecureConnection(t *testing.T) {
 	_, err := store.NewStore(secureDbConn)
 	if err != nil {
 		t.Error(err)
+	}
+}
+
+func TestSecureConnectionFailed(t *testing.T) {
+
+	c, err := store.NewStore(secureDb)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	//this should fail because the host in parameters is different than the one set in a certificate
+	_, err = c.Status(ctx)
+	if err == nil {
+		t.Error("unexpected result")
 	}
 }
