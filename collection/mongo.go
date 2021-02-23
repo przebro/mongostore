@@ -142,6 +142,31 @@ func (d *mongoDbCollection) Update(ctx context.Context, doc interface{}) error {
 
 	return err
 }
+
+func (d *mongoDbCollection) BulkUpdate(ctx context.Context, docs []interface{}) error {
+
+	models := []mongo.WriteModel{}
+	var id string
+	var err error
+
+	for _, doc := range docs {
+
+		if id, _, err = collection.RequiredFields(doc); err != nil {
+			return err
+		}
+		m := mongo.NewReplaceOneModel()
+		m.Filter = bson.D{{"_id", id}}
+		m.SetUpsert(true)
+		m.Replacement = doc
+
+		models = append(models, m)
+	}
+
+	_, err = d.collection.BulkWrite(ctx, models)
+
+	return err
+}
+
 func (d *mongoDbCollection) Delete(ctx context.Context, id string) error {
 
 	if id == "" {
