@@ -51,6 +51,16 @@ func initMongoDB(opt store.ConnectionOptions) (store.DataStore, error) {
 			Password: opt.Options[store.PasswordOption],
 		}
 		mongoOptions.SetAuth(credential)
+
+	}
+
+	tlscfg := &tls.Config{}
+
+	if trustopt := opt.Options[store.UntrustedOption]; trustopt != "" {
+
+		if v, err := strconv.ParseBool(trustopt); err == nil {
+			tlscfg.InsecureSkipVerify = v
+		}
 	}
 
 	if capath := opt.Options[store.RootCACertOption]; capath != "" {
@@ -66,22 +76,10 @@ func initMongoDB(opt store.ConnectionOptions) (store.DataStore, error) {
 			return nil, errors.New("unable to read certificate")
 		}
 
-		var untrusted bool
-
-		if trustopt := opt.Options[store.UntrustedOption]; trustopt != "" {
-
-			if v, err := strconv.ParseBool(trustopt); err == nil {
-				untrusted = v
-			}
-		}
-
 		serverName := opt.Options[store.HostnameOption]
 
-		tlscfg := &tls.Config{
-			RootCAs:            pool,
-			InsecureSkipVerify: untrusted,
-			ServerName:         serverName,
-		}
+		tlscfg.RootCAs = pool
+		tlscfg.ServerName = serverName
 
 		if ckeyf, ccertf := opt.Options[store.ClientKeyOption], opt.Options[store.ClientCertOption]; ckeyf != "" && ccertf != "" {
 			ccert, err := tls.LoadX509KeyPair(ccertf, ckeyf)
@@ -91,9 +89,9 @@ func initMongoDB(opt store.ConnectionOptions) (store.DataStore, error) {
 
 			tlscfg.Certificates = []tls.Certificate{ccert}
 		}
-
-		mongoOptions.SetTLSConfig(tlscfg)
 	}
+
+	mongoOptions.SetTLSConfig(tlscfg)
 
 	client, err := mongo.NewClient(mongoOptions)
 	if err != nil {
@@ -130,7 +128,11 @@ func (s *MongoStore) CreateCollection(ctx context.Context, name string) (collect
 //Status - returns status of a connection
 func (s *MongoStore) Status(ctx context.Context) (string, error) {
 
-	s.client.ListDatabaseNames(context.Background(), nil)
+	result, _ := s.client.ListDatabaseNames(context.Background(), nil)
+	fmt.Println(result)
+	cresult, errs := s.database.ListCollectionNames(context.Background(), bson.D{})
+	fmt.Println(errs)
+	fmt.Println(cresult)
 	err := s.client.Ping(ctx, readpref.PrimaryPreferred())
 
 	return "", err
