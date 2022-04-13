@@ -47,8 +47,9 @@ func initMongoDB(opt store.ConnectionOptions) (store.DataStore, error) {
 
 	if opt.Options[store.UsernameOption] != "" && opt.Options[store.PasswordOption] != "" {
 		credential := options.Credential{
-			Username: opt.Options[store.UsernameOption],
-			Password: opt.Options[store.PasswordOption],
+			AuthSource: opt.Path,
+			Username:   opt.Options[store.UsernameOption],
+			Password:   opt.Options[store.PasswordOption],
 		}
 		mongoOptions.SetAuth(credential)
 
@@ -128,13 +129,7 @@ func (s *MongoStore) CreateCollection(ctx context.Context, name string) (collect
 //Status - returns status of a connection
 func (s *MongoStore) Status(ctx context.Context) (string, error) {
 
-	result, _ := s.client.ListDatabaseNames(context.Background(), nil)
-	fmt.Println(result)
-	cresult, errs := s.database.ListCollectionNames(context.Background(), bson.D{})
-	fmt.Println(errs)
-	fmt.Println(cresult)
 	err := s.client.Ping(ctx, readpref.PrimaryPreferred())
-
 	return "", err
 }
 
