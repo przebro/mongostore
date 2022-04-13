@@ -89,10 +89,10 @@ func initMongoDB(opt store.ConnectionOptions) (store.DataStore, error) {
 			}
 
 			tlscfg.Certificates = []tls.Certificate{ccert}
-		}
-	}
 
-	mongoOptions.SetTLSConfig(tlscfg)
+		}
+		mongoOptions.SetTLSConfig(tlscfg)
+	}
 
 	client, err := mongo.NewClient(mongoOptions)
 	if err != nil {
