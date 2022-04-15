@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -138,7 +139,8 @@ func (d *mongoDbCollection) Update(ctx context.Context, doc interface{}) error {
 
 	filter := bson.D{{"_id", id}}
 
-	_, err = d.collection.ReplaceOne(ctx, filter, doc)
+	withUpsert := true
+	_, err = d.collection.ReplaceOne(ctx, filter, doc, &options.ReplaceOptions{Upsert: &withUpsert})
 
 	return err
 }
