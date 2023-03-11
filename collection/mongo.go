@@ -22,7 +22,7 @@ type mongoDbCollection struct {
 	collection *mongo.Collection
 }
 
-//Collection - returns an instance of Collection
+// Collection - returns an instance of Collection
 func Collection(name string, ctx context.Context, database *mongo.Database) collection.DataCollection {
 
 	col := database.Collection(name)
@@ -188,4 +188,8 @@ func (d *mongoDbCollection) Count(ctx context.Context) (int64, error) {
 
 func (d *mongoDbCollection) AsQuerable() (collection.QuerableCollection, error) {
 	return d, nil
+}
+
+func (d *mongoDbCollection) Type() string {
+	return "mongo"
 }
