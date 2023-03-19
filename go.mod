@@ -3,7 +3,7 @@ module github.com/przebro/mongostore
 go 1.20
 
 require (
-	github.com/przebro/databazaar v0.0.0-20230311201207-153b53e320fc
+	github.com/przebro/databazaar v0.0.0-20230319220817-4d9d50355aa0
 	go.mongodb.org/mongo-driver v1.4.4
 )
 

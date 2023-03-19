@@ -24,7 +24,7 @@ const (
 	databaseOption = "database"
 )
 
-//MongoStore - mongodb data store
+// MongoStore - mongodb data store
 type MongoStore struct {
 	name     string
 	client   *mongo.Client
@@ -126,14 +126,19 @@ func (s *MongoStore) CreateCollection(ctx context.Context, name string) (collect
 	return mongodb.Collection(name, ctx, s.database), err
 }
 
-//Status - returns status of a connection
+// Status - returns status of a connection
 func (s *MongoStore) Status(ctx context.Context) (string, error) {
 
 	err := s.client.Ping(ctx, readpref.PrimaryPreferred())
 	return "", err
 }
 
-//Close - closes connection
+// Close - closes connection
 func (s *MongoStore) Close(ctx context.Context) {
 	s.client.Disconnect(ctx)
+}
+
+func (s *MongoStore) CollectionExists(ctx context.Context, name string) bool {
+	_, err := s.database.Collection(name).EstimatedDocumentCount(ctx)
+	return err != nil
 }

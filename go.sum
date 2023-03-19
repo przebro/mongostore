@@ -65,6 +65,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/przebro/databazaar v0.0.0-20230311201207-153b53e320fc h1:gFMQ9mDcxxUxS++mKXLSyOB7ZyasJle4Ov6H+UB59mg=
 github.com/przebro/databazaar v0.0.0-20230311201207-153b53e320fc/go.mod h1:9zkSQ5MlRyGmvwn23zJicQ95yCOIFmR3kstPXRQ2K+M=
+github.com/przebro/databazaar v0.0.0-20230319220817-4d9d50355aa0 h1:L5eE50g7PvgbEQkkJjdu7580tMZl0kYeSanQiyGWwWk=
+github.com/przebro/databazaar v0.0.0-20230319220817-4d9d50355aa0/go.mod h1:9zkSQ5MlRyGmvwn23zJicQ95yCOIFmR3kstPXRQ2K+M=
 github.com/rogpeppe/go-internal v1.1.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.2.2/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
